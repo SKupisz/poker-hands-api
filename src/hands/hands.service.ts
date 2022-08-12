@@ -96,7 +96,6 @@ export class HandsService {
                 const cardValue = elem[0].trim().toLowerCase();
                 return cardValue === "jack" ? 11 : cardValue === "queen" ? 12 : cardValue === "king" ? 13 : parseInt(cardValue)
             }).sort((value1: number, value2: number) => value1-value2);
-            console.log(operand);
             for(let i = 0 ; i < operand.length - 1 ; i++){
                 if(operand[i+1] - operand[i] !== 1) return false;
             }
@@ -104,6 +103,10 @@ export class HandsService {
         }
         return false;
     };
+
+    checkIfHandHasFlush(hand: [string, CardColor][]) : boolean {
+        return hand.filter((elem: [string, CardColor]) => elem[1] === hand[0][1]).length === 5;
+    }
 
     checkIfHandHasFourOfAKind(hand: [string, CardColor][]): boolean {
         return hand.filter((elem: [string, CardColor]) => elem[0] === hand[0][0]).length === 4
@@ -118,13 +121,23 @@ export class HandsService {
         return (helperOperand.length === 3 && this.checkIfHandHasThreeOfAKind(operand));
     }
 
+    checkIfHandHasRoyalFlush(hand: [string, CardColor][]): boolean {
+        if(!(this.checkIfHandHasStraight(hand) && this.checkIfHandHasFlush(hand))) return false;
+        if(hand.find((elem: [string, CardColor]) => elem[0].trim().toLowerCase() === "ace") !== undefined
+            && hand.find((elem: [string, CardColor]) => elem[0].trim().toLowerCase() === "king") !== undefined) return true;
+        return false;
+    }
+
     getHandName(hand: [string, CardColor][]): string{
+
+        if(this.checkIfHandHasStraight(hand) && this.checkIfHandHasFlush(hand)) 
+            return this.checkIfHandHasRoyalFlush(hand) ? "Royal Flush" : "Straight Flush";
         
         if(this.checkIfHandHasFourOfAKind(hand)) return "Four of a kind";
 
         if(this.checkIfHandHasFullHouse(hand)) return "Full house";
 
-        if(hand.filter((elem: [string, CardColor]) => elem[1] === hand[0][1]).length === 5) return "Flush";
+        if(this.checkIfHandHasFlush(hand)) return "Flush";
 
         if(this.checkIfHandHasStraight(hand)) return "Straight";
 
