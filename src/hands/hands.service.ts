@@ -79,6 +79,32 @@ export class HandsService {
         return false;
     }
 
+    checkIfHandHasStraight(hand: [string, CardColor][]): boolean {
+        if(this.checkIfHandHasFourOfAKind(hand) || this.checkIfHandHasThreeOfAKind(hand) || this.checkIfHandHasOnePair(hand)) return false;
+        if(hand.find((elem: [string, CardColor]) => elem[0].trim().toLowerCase() === "ace") === undefined){
+            const operand:number[] = hand.map((elem) => {
+                const cardValue = elem[0].trim().toLowerCase();
+                return cardValue === "jack" ? 11 : cardValue === "queen" ? 12 : cardValue === "king" ? 13 : parseInt(cardValue)
+            }).sort((value1: number, value2: number) => value1-value2);
+            for(let i = 0 ; i < operand.length - 1 ; i++){
+                if(operand[i+1] - operand[i] !== 1) return false;
+            }
+            return true;
+        }
+        else{
+            const operand:number[] = hand.filter((elem: [string, CardColor]) => elem[0].trim().toLowerCase() !== "ace").map((elem) => {
+                const cardValue = elem[0].trim().toLowerCase();
+                return cardValue === "jack" ? 11 : cardValue === "queen" ? 12 : cardValue === "king" ? 13 : parseInt(cardValue)
+            }).sort((value1: number, value2: number) => value1-value2);
+            console.log(operand);
+            for(let i = 0 ; i < operand.length - 1 ; i++){
+                if(operand[i+1] - operand[i] !== 1) return false;
+            }
+            if(operand[0] === 2 || operand[operand.length - 1] === 13) return true;
+        }
+        return false;
+    };
+
     checkIfHandHasFourOfAKind(hand: [string, CardColor][]): boolean {
         return hand.filter((elem: [string, CardColor]) => elem[0] === hand[0][0]).length === 4
         || hand.filter((elem: [string, CardColor]) => elem[0] === hand[1][0]).length === 4;
@@ -93,18 +119,18 @@ export class HandsService {
     }
 
     getHandName(hand: [string, CardColor][]): string{
-
+        
         if(this.checkIfHandHasFourOfAKind(hand)) return "Four of a kind";
 
         if(this.checkIfHandHasFullHouse(hand)) return "Full house";
 
         if(hand.filter((elem: [string, CardColor]) => elem[1] === hand[0][1]).length === 5) return "Flush";
 
+        if(this.checkIfHandHasStraight(hand)) return "Straight";
+
         if(this.checkIfHandHasThreeOfAKind(hand)) return "Three of a kind";
 
-        if(this.checkIfHandHasTwoPairs(hand)) {
-            return "Two pairs";
-        }
+        if(this.checkIfHandHasTwoPairs(hand)) return "Two pairs";
 
         if(this.checkIfHandHasOnePair(hand)) return "One pair";
         
