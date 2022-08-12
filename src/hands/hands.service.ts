@@ -71,13 +71,38 @@ export class HandsService {
         return this.checkIfHandHasOnePair(operand);
     }
 
+    checkIfHandHasThreeOfAKind(hand: [string, CardColor][]): boolean {
+        if(!this.checkIfHandHasOnePair(hand)) return false;
+        for(let i = 0 ; i < hand.length - 2; i++){
+            if(hand.filter((elem: [string, CardColor]) => elem[0] === hand[i][0]).length === 3) return true;
+        }
+        return false;
+    }
+
+    checkIfHandHasFourOfAKind(hand: [string, CardColor][]): boolean {
+        return hand.filter((elem: [string, CardColor]) => elem[0] === hand[0][0]).length === 4
+        || hand.filter((elem: [string, CardColor]) => elem[0] === hand[1][0]).length === 4;
+    }
+
+    checkIfHandHasFullHouse(hand: [string, CardColor][]): boolean {
+        if(!this.checkIfHandHasThreeOfAKind(hand)) return false;
+        const operand = hand.filter((elem: [string, CardColor]) => elem[0] === hand[0][0]);
+        if(operand.length === 2 && operand[0][0] === operand[1][0]) return true;
+        const helperOperand = hand.filter((elem: [string, CardColor]) => elem[0] !== hand[0][0]);
+        return (helperOperand.length === 3 && this.checkIfHandHasThreeOfAKind(operand));
+    }
+
     getHandName(hand: [string, CardColor][]): string{
+
+        if(this.checkIfHandHasFourOfAKind(hand)) return "Four of a kind";
+
+        if(this.checkIfHandHasFullHouse(hand)) return "Full house";
 
         if(hand.filter((elem: [string, CardColor]) => elem[1] === hand[0][1]).length === 5) return "Flush";
 
+        if(this.checkIfHandHasThreeOfAKind(hand)) return "Three of a kind";
+
         if(this.checkIfHandHasTwoPairs(hand)) {
-            if(hand.filter((elem: [string, CardColor]) => elem[0] === hand[0][0]).length === 4
-            || hand.filter((elem: [string, CardColor]) => elem[0] === hand[1][0]).length === 4) return "Four of a kind";
             return "Two pairs";
         }
 
