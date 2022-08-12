@@ -20,7 +20,7 @@ export class HandsController {
     verifyIfHandIsCorrect(@Body() handDto: HandsDto): {isValid: boolean} {
         const {cards} = handDto;
         return {
-            isValid: this.handsService.checkIfHandIsCorrect(JSON.parse(cards))
+            isValid: this.handsService.checkIfHandIsCorrect(JSON.parse(cards.toString()))
         };
     }
 }
