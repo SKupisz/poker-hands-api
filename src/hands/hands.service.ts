@@ -22,40 +22,26 @@ export class HandsService {
         else throw new NotFoundException("Wrong order given");
     }
 
-    validateIfHandIsCorrect(hand: [string, CardColor][]): void {
+    validateIfHandIsCorrect(hand: [string, CardColor][], boolNeeded: boolean): (void | boolean) {
         if(hand.length !== 5){
-            throw new NotAcceptableException("Given card hand is incorrect");
+            boolNeeded ? () => {return false;} : () => {throw new NotAcceptableException("A hand contains of exactly 5 cards")};
+        }
+        if(hand.filter((elem: [string, CardColor]) => elem[0] === elem[0][0]).length === 5){
+            boolNeeded ? () => {return false;} : () => {throw new NotAcceptableException("No cards set has 5 cards of the same value")};
         }
         for(let i = 0 ; i < hand.length; i++){
             if(hand[i][0] !== "ace" && hand[i][0] !== "king" && hand[i][0] !== "queen" && hand[i][0] !== "jack"){
                 try {
                     const operand = parseInt(hand[i][0], 10);
-                    if(operand < 2 || operand > 10 || operand.toString() !== hand[i][0]) throw new NotAcceptableException("Given card hand is incorrect");
+                    if(operand < 2 || operand > 10 || operand.toString() !== hand[i][0]) 
+                    boolNeeded ? () => {return false;} : () => {throw new NotAcceptableException("Given card hand is incorrect")};
                 }
                 catch {
-                    throw new NotAcceptableException("Given card hand is incorrect");
+                    boolNeeded ? () => {return false;} : () => {throw new NotAcceptableException("Given card hand is incorrect")};
                 }
             }
         }
-    }
-
-    checkIfHandIsCorrect(hand: [string, CardColor][]): boolean {
-        if(hand.length !== 5){
-            return false;
-        }
-        for(let i = 0 ; i < hand.length; i++){
-            const nameOperand = hand[i][0].toLowerCase();
-            if(nameOperand !== "ace" && nameOperand !== "king" && nameOperand !== "queen" && nameOperand !== "jack"){
-                try {
-                    const operand = parseInt(hand[i][0], 10);
-                    if(operand < 2 || operand > 10 || operand.toString() !== hand[i][0]) return false;
-                }
-                catch {
-                    return false;
-                }
-            }
-        }
-        return true;
+        if(boolNeeded) return true;
     }
 
     checkIfHandHasOnePair(hand: [string, CardColor][]): boolean {
@@ -67,7 +53,7 @@ export class HandsService {
         return false;
     }
 
-    checkIfHandsHasTwoPairs(hand: [string, CardColor][]): boolean {
+    checkIfHandHasTwoPairs(hand: [string, CardColor][]): boolean {
         let operand:[string, CardColor][] = [...hand];
         if(!this.checkIfHandHasOnePair(hand)) return false;
         let flag:boolean = false;
@@ -83,6 +69,21 @@ export class HandsService {
             if(flag) break;
         }
         return this.checkIfHandHasOnePair(operand);
+    }
+
+    getHandName(hand: [string, CardColor][]): string{
+
+        if(hand.filter((elem: [string, CardColor]) => elem[1] === hand[0][1]).length === 5) return "Flush";
+
+        if(this.checkIfHandHasTwoPairs(hand)) {
+            if(hand.filter((elem: [string, CardColor]) => elem[0] === hand[0][0]).length === 4
+            || hand.filter((elem: [string, CardColor]) => elem[0] === hand[1][0]).length === 4) return "Four of a kind";
+            return "Two pairs";
+        }
+
+        if(this.checkIfHandHasOnePair(hand)) return "One pair";
+        
+        return "High card";
     }
 
 }
