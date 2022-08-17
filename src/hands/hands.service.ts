@@ -118,7 +118,7 @@ export class HandsService {
         const operand = hand.filter((elem: [string, CardColor]) => elem[0] === hand[0][0]);
         if(operand.length === 2 && operand[0][0] === operand[1][0]) return true;
         const helperOperand = hand.filter((elem: [string, CardColor]) => elem[0] !== hand[0][0]);
-        return (helperOperand.length === 3 && this.checkIfHandHasThreeOfAKind(operand));
+        return (helperOperand.length === 2 && this.checkIfHandHasThreeOfAKind(operand));
     }
 
     checkIfHandHasRoyalFlush(hand: [string, CardColor][]): boolean {
