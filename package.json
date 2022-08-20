@@ -6,7 +6,6 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "npm": "8.16.0",
     "node": "16.16.0"
   },
   "scripts": {
